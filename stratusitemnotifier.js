@@ -15,7 +15,13 @@
 
     const categoryApiUrl = 'https://www.strrev.com/apisite/catalog/v1/search/items?category=Featured&limit=28&sortType=0';
 
-    let lastSeenItemId = null;
+    function getLastSeenItemId() {
+        return localStorage.getItem('lastSeenItemId');
+    }
+
+    function setLastSeenItemId(itemId) {
+        localStorage.setItem('lastSeenItemId', itemId);
+    }
 
     function getCsrfToken() {
         const metaTag = document.querySelector('meta[name="csrf-token"]');
@@ -49,8 +55,9 @@
 
     function checkForNewItems(items) {
         const mostRecentItem = items[0];
+        const lastSeenItemId = getLastSeenItemId();
         if (!lastSeenItemId || mostRecentItem.id > lastSeenItemId) {
-            lastSeenItemId = mostRecentItem.id;
+            setLastSeenItemId(mostRecentItem.id);
             notifyUser(mostRecentItem.id);
         }
     }
