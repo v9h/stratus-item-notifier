@@ -61,7 +61,7 @@
         });
 
         notification.onclick = () => {
-            window.open(`https://www.strrev.com/catalog/${itemId}/`);
+            window.open(`https://www.strrev.com/catalog/${itemId}/Notify`);
         };
     }
 
@@ -73,7 +73,7 @@
 
     function init() {
         requestNotificationPermission();
-        setInterval(fetchItems, 10000); // 10 seconds
+        setInterval(fetchItems, 5000);
     }
 
     init();
