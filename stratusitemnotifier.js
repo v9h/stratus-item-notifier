@@ -39,8 +39,8 @@
             if (!response.ok) throw new Error('Network response was not ok');
 
             const data = await response.json();
-            if (data.items && data.items.length > 0) {
-                checkForNewItems(data.items);
+            if (data.data && data.data.length > 0) {
+                checkForNewItems(data.data);
             }
         } catch (error) {
             console.error('Failed to fetch items:', error);
@@ -48,21 +48,20 @@
     }
 
     function checkForNewItems(items) {
-        for (let item of items) {
-            if (!lastSeenItemId || item.id > lastSeenItemId) {
-                lastSeenItemId = item.id;
-                notifyUser(item);
-            }
+        const mostRecentItem = items[0];
+        if (!lastSeenItemId || mostRecentItem.id > lastSeenItemId) {
+            lastSeenItemId = mostRecentItem.id;
+            notifyUser(mostRecentItem.id);
         }
     }
 
-    function notifyUser(item) {
+    function notifyUser(itemId) {
         const notification = new Notification("New Item Available!", {
-            body: `Check out the new item: ${item.name}`
+            body: 'Press this notification to be redirected'
         });
 
         notification.onclick = () => {
-            window.open(`https://www.strrev.com/catalog/${item.id}/`);
+            window.open(`https://www.strrev.com/catalog/${itemId}/`);
         };
     }
 
@@ -74,7 +73,7 @@
 
     function init() {
         requestNotificationPermission();
-        setInterval(fetchItems, 5000); // 10 seconds
+        setInterval(fetchItems, 10000); // 10 seconds
     }
 
     init();
