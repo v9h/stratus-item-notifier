@@ -2,6 +2,8 @@
 
 Time to make? ~ 1 hour.
 
+This will remain opensource and updates will be provided.
+
 ## Tutorial
 
 * Install Tampermonkey.
