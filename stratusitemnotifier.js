@@ -8,6 +8,8 @@
 // @match        *://www.strrev.com/*
 // @icon         https://www.strrev.com/img/logo_R.svg
 // @grant        none
+// @updateURL    https://raw.githubusercontent.com/v9h/stratus-item-notifier/refs/heads/main/stratusitemnotifier.js
+// @downloadURL  https://raw.githubusercontent.com/v9h/stratus-item-notifier/refs/heads/main/stratusitemnotifier.js
 // ==/UserScript==
 
 (function() {
@@ -105,7 +107,7 @@
 
     function init() {
         requestNotificationPermission();
-        setInterval(fetchItems, 5000);
+        setInterval(fetchItems, 5000); 
     }
 
     init();
