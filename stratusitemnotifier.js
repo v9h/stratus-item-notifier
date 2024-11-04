@@ -62,9 +62,26 @@
         }
     }
 
-    function notifyUser(itemId) {
+    async function fetchItemName(itemId) {
+        try {
+            const response = await fetch(`https://www.strrev.com/catalog/${itemId}/Notify`);
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const itemName = doc.querySelector('.title-0-2-181').textContent;
+            return itemName;
+        } catch (error) {
+            console.error('Failed to fetch item name:', error);
+            return 'Unknown Item';
+        }
+    }
+
+    async function notifyUser(itemId) {
+        const itemName = await fetchItemName(itemId);
         const notification = new Notification("New Item Available!", {
-            body: 'Press this notification to be redirected'
+            body: `Press this notification to be redirected to ${itemName}.`
         });
 
         notification.onclick = () => {
