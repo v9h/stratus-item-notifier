@@ -1,6 +1,6 @@
 # Stratus Item Notifier
 
-Time to make? ~ 20 minutes.
+Time to make? ~ 1 hour.
 
 ## Tutorial
 
