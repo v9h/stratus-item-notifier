@@ -2,14 +2,14 @@
 // @name         Item Notifier
 // @include      http://www.strrev.com/
 // @namespace    http://www.strrev.com/
-// @version      2024-11-04
+// @version      1.2.6
 // @description  Notifies user when new items are available with sound
 // @author       goth
 // @match        *://www.strrev.com/*
 // @icon         https://www.strrev.com/img/logo_R.svg
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/v9h/stratus-item-notifier/refs/heads/main/stratusitemnotifier.js
-// @downloadURL  https://raw.githubusercontent.com/v9h/stratus-item-notifier/refs/heads/main/stratusitemnotifier.js
+// @updateURL    https://raw.githubusercontent.com/v9h/stratus-item-notifier/main/stratusitemnotifier.js
+// @downloadURL  https://raw.githubusercontent.com/v9h/stratus-item-notifier/main/stratusitemnotifier.js
 // ==/UserScript==
 
 (function() {
@@ -107,7 +107,7 @@
 
     function init() {
         requestNotificationPermission();
-        setInterval(fetchItems, 5000); 
+        setInterval(fetchItems, 5000); // 5 seconds
     }
 
     init();
