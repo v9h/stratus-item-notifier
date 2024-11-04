@@ -14,7 +14,8 @@ You can edit this to your liking, distribute to your liking and use it to your l
 4. Go to utilities, scroll down and paste the following into 'Import from link'.
 
 ```https://raw.githubusercontent.com/v9h/stratus-item-notifier/main/stratusitemnotifier.js```
-6. Press install!
+
+5. Press install!
 
 # Want to help?
 
