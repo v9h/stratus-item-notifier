@@ -14,3 +14,9 @@ You can edit this to your liking, distribute to your liking and use it to your l
 * Enable notifications.
 * Enjoy logging new items every 5 seconds.
 * When item found, a notification will appear, press it to instantly be redirected to the item link.
+
+# Want to help?
+
+* Make a fork.
+* Add whatever you like / fix anything.
+* Make a pull request.
