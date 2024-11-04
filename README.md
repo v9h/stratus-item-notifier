@@ -12,8 +12,9 @@ You can edit this to your liking, distribute to your liking and use it to your l
 2. Enable developer mode in extensions ( if necessary ).
 3. Click on the extension, then press dashboard.
 4. Go to utilities, scroll down and paste the following into 'Import from link'.
+
 ```https://raw.githubusercontent.com/v9h/stratus-item-notifier/main/stratusitemnotifier.js```
-5. Press install!
+6. Press install!
 
 # Want to help?
 
