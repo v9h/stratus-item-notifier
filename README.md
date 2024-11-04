@@ -4,6 +4,8 @@ Time to make? ~ 1 hour.
 
 This will remain opensource and updates will be provided.
 
+You can edit this to your liking, distribute to your liking and use it to your liking, as per MIT license.
+
 ## Tutorial
 
 * Install Tampermonkey.
