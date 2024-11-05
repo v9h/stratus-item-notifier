@@ -2,8 +2,8 @@
 // @name         Item Notifier
 // @include      http://www.strrev.com/
 // @namespace    http://www.strrev.com/
-// @version      1.2.9
-// @description  Notifies user when new items are available.
+// @version      1.2.14
+// @description  Notifies user when new items are available with image
 // @author       goth
 // @match        *://www.strrev.com/*
 // @icon         https://www.strrev.com/img/logo_R.svg
@@ -16,7 +16,6 @@
     'use strict';
 
     const categoryApiUrl = 'https://www.strrev.com/apisite/catalog/v1/search/items?category=Featured&limit=28&sortType=0';
-    const notificationSoundUrl = 'https://v9h.github.io/notify.mp3';
 
     function getLastSeenItemId() {
         return localStorage.getItem('lastSeenItemId');
@@ -73,8 +72,11 @@
             const text = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(text, 'text/html');
-            const itemName = doc.querySelector('.title-0-2-181').textContent;
-            const itemImage = doc.querySelector('.image-0-2-71').src;
+            const itemNameElement = doc.querySelector('div.col-10 h1[class^="title-"]');
+            const itemImageElement = doc.querySelector('img[src*="//images/thumbnails/"]');
+            const itemName = itemNameElement ? itemNameElement.textContent : 'Unknown Item';
+            const itemImage = itemImageElement ? itemImageElement.src : '';
+            console.log(`Fetched item details: ${itemName}, ${itemImage}`);
             return { itemName, itemImage };
         } catch (error) {
             console.error('Failed to fetch item details:', error);
@@ -82,13 +84,9 @@
         }
     }
 
-    function playNotificationSound() {
-        const audio = new Audio(notificationSoundUrl);
-        audio.play();
-    }
-
     async function notifyUser(itemId) {
         const { itemName, itemImage } = await fetchItemDetails(itemId);
+        console.log(`Creating notification for item: ${itemName}`);
         const notification = new Notification("New Item Available!", {
             body: `Press this notification to be redirected to ${itemName}.`,
             icon: itemImage
@@ -97,19 +95,22 @@
         notification.onclick = () => {
             window.open(`https://www.strrev.com/catalog/${itemId}/Notify`);
         };
-
-        playNotificationSound();
     }
 
     function requestNotificationPermission() {
         if (Notification.permission === 'default') {
-            Notification.requestPermission();
+            Notification.requestPermission().then(permission => {
+                console.log(`Notification permission: ${permission}`);
+            });
+        } else {
+            console.log(`Notification permission: ${Notification.permission}`);
         }
     }
 
     function init() {
+        console.log('Initializing script...');
         requestNotificationPermission();
-        setInterval(fetchItems, 5000);
+        setInterval(fetchItems, 5000); // 5 seconds
     }
 
     init();
