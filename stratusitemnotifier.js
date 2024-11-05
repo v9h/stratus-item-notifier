@@ -2,7 +2,7 @@
 // @name         Item Notifier
 // @include      http://www.strrev.com/
 // @namespace    http://www.strrev.com/
-// @version      1.2.6
+// @version      1.2.7
 // @description  Notifies user when new items are available with sound
 // @author       goth
 // @match        *://www.strrev.com/*
@@ -65,7 +65,7 @@
         }
     }
 
-    async function fetchItemName(itemId) {
+    async function fetchItemDetails(itemId) {
         try {
             const response = await fetch(`https://www.strrev.com/catalog/${itemId}/Notify`);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -74,10 +74,11 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(text, 'text/html');
             const itemName = doc.querySelector('.title-0-2-181').textContent;
-            return itemName;
+            const itemImage = doc.querySelector('.image-0-2-71').src;
+            return { itemName, itemImage };
         } catch (error) {
-            console.error('Failed to fetch item name:', error);
-            return 'Unknown Item';
+            console.error('Failed to fetch item details:', error);
+            return { itemName: 'Unknown Item', itemImage: '' };
         }
     }
 
@@ -87,9 +88,10 @@
     }
 
     async function notifyUser(itemId) {
-        const itemName = await fetchItemName(itemId);
+        const { itemName, itemImage } = await fetchItemDetails(itemId);
         const notification = new Notification("New Item Available!", {
-            body: `Press this notification to be redirected to ${itemName}.`
+            body: `Press this notification to be redirected to ${itemName}.`,
+            icon: itemImage
         });
 
         notification.onclick = () => {
@@ -107,7 +109,7 @@
 
     function init() {
         requestNotificationPermission();
-        setInterval(fetchItems, 5000); // 5 seconds
+        setInterval(fetchItems, 5000);
     }
 
     init();
