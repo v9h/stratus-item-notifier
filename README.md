@@ -6,6 +6,8 @@ This will remain opensource and updates will be provided.
 
 You can edit this to your liking, distribute to your liking and use it to your liking, as per MIT license.
 
+Credits to @AR-Z for help on the details API.
+
 # How do I install this??!?!??!
 
 1. Install Tampermonkey.
