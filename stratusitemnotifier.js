@@ -2,7 +2,7 @@
 // @name         Item Notifier
 // @include      http://www.strrev.com/
 // @namespace    http://www.strrev.com/
-// @version      1.2.8
+// @version      1.2.9
 // @description  Notifies user when new items are available.
 // @author       goth
 // @match        *://www.strrev.com/*
@@ -17,7 +17,6 @@
 
     const categoryApiUrl = 'https://www.strrev.com/apisite/catalog/v1/search/items?category=Featured&limit=28&sortType=0';
     const notificationSoundUrl = 'https://v9h.github.io/notify.mp3';
-    const smallIconUrl = 'https://www.strrev.com/img/logo_R.svg';
 
     function getLastSeenItemId() {
         return localStorage.getItem('lastSeenItemId');
@@ -92,8 +91,7 @@
         const { itemName, itemImage } = await fetchItemDetails(itemId);
         const notification = new Notification("New Item Available!", {
             body: `Press this notification to be redirected to ${itemName}.`,
-            icon: smallIconUrl,
-            image: itemImage
+            icon: itemImage
         });
 
         notification.onclick = () => {
