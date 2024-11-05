@@ -2,8 +2,8 @@
 // @name         Item Notifier
 // @include      http://www.strrev.com/
 // @namespace    http://www.strrev.com/
-// @version      1.2.14
-// @description  Notifies user when new items are available with image
+// @version      1.2.21
+// @description  Notifies user when new items are available.
 // @author       goth
 // @match        *://www.strrev.com/*
 // @icon         https://www.strrev.com/img/logo_R.svg
@@ -16,6 +16,8 @@
     'use strict';
 
     const categoryApiUrl = 'https://www.strrev.com/apisite/catalog/v1/search/items?category=Featured&limit=28&sortType=0';
+    const itemDetailsApiUrl = 'https://www.strrev.com/apisite/catalog/v1/catalog/items/details';
+    const thumbnailApiUrl = 'https://www.strrev.com/apisite/thumbnails/v1/assets';
 
     function getLastSeenItemId() {
         return localStorage.getItem('lastSeenItemId');
@@ -25,19 +27,27 @@
         localStorage.setItem('lastSeenItemId', itemId);
     }
 
-    function getCsrfToken() {
-        const metaTag = document.querySelector('meta[name="csrf-token"]');
-        return metaTag ? metaTag.getAttribute('content') : null;
+    async function getCsrfToken() {
+        try {
+            const response = await fetch(itemDetailsApiUrl, {
+                method: 'POST',
+                credentials: 'include'
+            });
+            return response.headers.get('x-csrf-token');
+        } catch (error) {
+            console.error('Failed to fetch CSRF token:', error);
+            return null;
+        }
     }
 
     async function fetchItems() {
         try {
-            const csrfToken = getCsrfToken();
+            const csrfToken = await getCsrfToken();
             const headers = {
                 'Content-Type': 'application/json'
             };
             if (csrfToken) {
-                headers['X-CSRF-Token'] = csrfToken;
+                headers['X-Csrf-Token'] = csrfToken;
             }
 
             const response = await fetch(categoryApiUrl, {
@@ -48,47 +58,67 @@
 
             const data = await response.json();
             if (data.data && data.data.length > 0) {
-                checkForNewItems(data.data);
+                await checkForNewItems(data.data);
             }
         } catch (error) {
             console.error('Failed to fetch items:', error);
         }
     }
 
-    function checkForNewItems(items) {
+    async function checkForNewItems(items) {
         const mostRecentItem = items[0];
         const lastSeenItemId = getLastSeenItemId();
         if (!lastSeenItemId || mostRecentItem.id > lastSeenItemId) {
             setLastSeenItemId(mostRecentItem.id);
-            notifyUser(mostRecentItem.id);
+            setTimeout(async () => {
+                await notifyUser(mostRecentItem.id);
+            }, 500);
         }
     }
 
     async function fetchItemDetails(itemId) {
         try {
-            const response = await fetch(`https://www.strrev.com/catalog/${itemId}/Notify`);
+            const csrfToken = await getCsrfToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Csrf-Token': csrfToken
+            };
+
+            const payload = {
+                items: [{ itemType: "Asset", id: itemId }]
+            };
+
+            const response = await fetch(itemDetailsApiUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload),
+                credentials: 'include'
+            });
             if (!response.ok) throw new Error('Network response was not ok');
 
-            const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const itemNameElement = doc.querySelector('div.col-10 h1[class^="title-"]');
-            const itemImageElement = doc.querySelector('img[src*="//images/thumbnails/"]');
-            const itemName = itemNameElement ? itemNameElement.textContent : 'Unknown Item';
-            const itemImage = itemImageElement ? itemImageElement.src : '';
-            console.log(`Fetched item details: ${itemName}, ${itemImage}`);
-            return { itemName, itemImage };
+            const data = await response.json();
+            const itemData = data.data && data.data.length > 0 ? data.data[0] : null;
+            const itemName = itemData ? itemData.name : 'Unknown Item';
+            const isLimitedUnique = itemData && itemData.itemRestrictions.includes('LimitedUnique');
+            const itemPrice = itemData ? itemData.price : 'Unknown Price';
+
+            const thumbnailResponse = await fetch(`${thumbnailApiUrl}?assetIds=${itemId}&format=png&size=420x420`);
+            if (!thumbnailResponse.ok) throw new Error('Network response was not ok');
+
+            const thumbnailData = await thumbnailResponse.json();
+            const itemImage = thumbnailData.data && thumbnailData.data.length > 0 ? `https://www.strrev.com${thumbnailData.data[0].imageUrl}` : '';
+
+            return { itemName, itemImage, isLimitedUnique, itemPrice };
         } catch (error) {
             console.error('Failed to fetch item details:', error);
-            return { itemName: 'Unknown Item', itemImage: '' };
+            return { itemName: 'Unknown Item', itemImage: '', isLimitedUnique: false, itemPrice: 'Unknown Price' };
         }
     }
 
     async function notifyUser(itemId) {
-        const { itemName, itemImage } = await fetchItemDetails(itemId);
-        console.log(`Creating notification for item: ${itemName}`);
-        const notification = new Notification("New Item Available!", {
-            body: `Press this notification to be redirected to ${itemName}.`,
+        const { itemName, itemImage, isLimitedUnique, itemPrice } = await fetchItemDetails(itemId);
+        const notification = new Notification(`New Item Available! Price: ${itemPrice} R$!`, {
+            body: `Press this notification to be redirected to ${itemName}. ${isLimitedUnique ? 'This item is Limited Unique!' : 'This item is not Limited Unique.'}`,
             icon: itemImage
         });
 
@@ -99,18 +129,13 @@
 
     function requestNotificationPermission() {
         if (Notification.permission === 'default') {
-            Notification.requestPermission().then(permission => {
-                console.log(`Notification permission: ${permission}`);
-            });
-        } else {
-            console.log(`Notification permission: ${Notification.permission}`);
+            Notification.requestPermission();
         }
     }
 
     function init() {
-        console.log('Initializing script...');
         requestNotificationPermission();
-        setInterval(fetchItems, 5000); // 5 seconds
+        setInterval(fetchItems, 5000);
     }
 
     init();
