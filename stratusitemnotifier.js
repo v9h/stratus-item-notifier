@@ -2,7 +2,7 @@
 // @name         Item Notifier
 // @include      http://www.strrev.com/
 // @namespace    http://www.strrev.com/
-// @version      1.2.21
+// @version      1.3.0
 // @description  Notifies user when new items are available.
 // @author       goth
 // @match        *://www.strrev.com/*
@@ -135,7 +135,7 @@
 
     function init() {
         requestNotificationPermission();
-        setInterval(fetchItems, 5000);
+        setInterval(fetchItems, 1500);
     }
 
     init();
